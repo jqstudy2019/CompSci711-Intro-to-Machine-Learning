@@ -16,6 +16,11 @@
 #
 #       Also Write report - See Canvas for details 
 #
+#
+#
+#       Not needed but included timers in the program as some steps take a long time to run and I wanted to make sure I had an idea of how long they would run/ show they are running
+#
+#       On my laptop this took ~2000 Seconds/  to run 
 #############################################################################################################
 ##      Package Imports     ##
 
@@ -88,7 +93,7 @@ axs[0,0].set_ylabel("Sensitivity")
 axs[0,0].set_xlim(0,1)
 axs[0,0].set_ylim(0,1)
 axs[0,0].plot(OVA_Prostate_entropy_fpr,OVA_Prostate_entropy_tpr)
-axs[0,0].set_title("OVA Prostate Entropy Trained AUC")
+axs[0,0].set_title("OVA Prostate Entropy Trained ROC")
 OVA_Prostate_entropy_AUC = roc_auc_score(OVA_Prostate.target, OVA_Prostate_entropy_y_scores[:,1])
 
     # Steel Plate Falult Entropy
@@ -99,7 +104,7 @@ axs[0,1].set_ylabel("Sensitivity")
 axs[0,1].set_xlim(0,1)
 axs[0,1].set_ylim(0,1)
 axs[0,1].plot(Steel_Plate_Fault_entropy_fpr,Steel_Plate_Fault_entropy_tpr)
-axs[0,1].set_title("Steel Plate Fault Entropy Trained AUC")
+axs[0,1].set_title("Steel Plate Fault Entropy Trained ROC")
 Steel_Plate_Fault_entropy_AUC = roc_auc_score(Steel_plate_falult.target, Steel_Plate_Fault_entropy_y_scores[:,1])
 
     # OVA Prostate Gini Index
@@ -110,7 +115,7 @@ axs[1,0].set_ylabel("Sensitivity")
 axs[1,0].set_xlim(0,1)
 axs[1,0].set_ylim(0,1)
 axs[1,0].plot(OVA_Prostate_Gini_fpr,OVA_Prostate_Gini_tpr)
-axs[1,0].set_title("Steel Plate Fault Entropy Trained AUC")
+axs[1,0].set_title("OVA Prostate Gini Index Trained ROC")
 OVA_Prostate_Gini_AUC = roc_auc_score(OVA_Prostate.target, OVA_Prostate_Gini_y_scores[:,1])
 
     # Steel Plate Falult Gini Index
@@ -121,7 +126,7 @@ axs[1,1].set_ylabel("Sensitivity")
 axs[1,1].set_xlim(0,1)
 axs[1,1].set_ylim(0,1)
 axs[1,1].plot(Steel_plate_falult_Gini_fpr,Steel_plate_falult_Gini_tpr)
-axs[1,1].set_title("Steel Plate Fault Entropy Trained AUC")
+axs[1,1].set_title("Steel Plate Fault Gini Index Trained ROC")
 Steel_Plate_Fault_Gini_AUC = roc_auc_score(Steel_plate_falult.target, Steel_Plate_Fault_Gini_y_scores[:,1])
    
     # Display Tables
