@@ -25,14 +25,19 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 import time
+
+from ucimlrepo import fetch_ucirepo 
+
+from scipy.io.arff import loadarff
+
     #   SkLearn Imports     
 from sklearn import datasets
 # from sklearn.tree import DecisionTreeClassifier
 # from sklearn import tree
 # from sklearn import metrics
-# from sklearn.metrics import roc_curve
-# from sklearn.metrics import roc_auc_score
-# from sklearn import model_selection
+from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_auc_score
+from sklearn import model_selection
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LinearRegression
@@ -45,24 +50,27 @@ Whole_Time_start = time.time()
 
 #############################################################################################################
 ##   Loading Data Sets      ##
-loading_pbcseq_start = time.time()
-pbcseq_data = datasets.fetch_openml(data_id=516) # https://www.openml.org/search?type=data&sort=runs&status=active&qualities.NumberOfInstances=between_1000_10000&qualities.NumberOfClasses=lte_1&id=1030
-loading_pbcseq_end = time.time()
-print("pbcseq Dataset Loading Time (Seconds): ", round(loading_pbcseq_end-loading_pbcseq_start,3))
-pbcseq_data.data.info()
-
 loading_Moneyball_start = time.time()
 Moneyball_data = datasets.fetch_openml(data_id=41021) # https://www.openml.org/search?type=data&sort=runs&status=active&qualities.NumberOfInstances=between_1000_10000&qualities.NumberOfClasses=lte_1&id=688
 loading_Moneyball_end = time.time()
 print("Moneyball Dataset Loading Time (Seconds): ", round(loading_Moneyball_end-loading_Moneyball_start,3))
 Moneyball_data.data.info()
+print(Moneyball_data)
+
+# UCI Dataset
+# fetch dataset 
+seoul_bike_sharing_demand = pd.read_csv('SeoulBikeData.csv', encoding=None)
+seoul_bike_sharing_demand_array = np.array(seoul_bike_sharing_demand)
+print(seoul_bike_sharing_demand)
+
 
 #############################################################################################################
 ##   One Hot Encoding  ##
 
-ct_pbceq = ColumnTransformer([("encoder", OneHotEncoder(sparse_output=False), [2,4,5,6,7,8])], remainder="passthrough")
-trans_pbceq = ct_pbceq.fit_transform(pbcseq_data.data)
-pbceq_new_data = pd.DataFrame(trans_pbceq, columns = ct_pbceq.get_feature_names_out(), index = pbcseq_data.data.index)
+ct_seoul_bike = ColumnTransformer([("encoder", OneHotEncoder(sparse_output=False), [0,11,12,13])], remainder="passthrough")
+seoul_bike_trans_data = ct_seoul_bike.fit_transform(seoul_bike_sharing_demand_array)
+seoul_bike_trans_data = pd.DataFrame(seoul_bike_trans_data, columns = ct_seoul_bike.get_feature_names_out())
+print(seoul_bike_trans_data)
 
 ct_Moneyball = ColumnTransformer([("encoder", OneHotEncoder(sparse_output=False), [0,1,8,9,10,11])], remainder="passthrough")
 trans_moneyball = ct_Moneyball.fit_transform(Moneyball_data.data)
@@ -71,21 +79,30 @@ moneyball_new_data = pd.DataFrame(trans_moneyball, columns = ct_Moneyball.get_fe
 
 #############################################################################################################
 ##   Missing Values Imputation  ##
-    # Used Mean Imputing to Fill values with most mean of non missing column 
+#     # Used Mean Imputing to Fill values with most mean of non missing column 
 
 imp = SimpleImputer(missing_values=np.nan, strategy='mean')
 
-imp_pbceq = imp.fit_transform(moneyball_new_data)
-frame_imp_pbseqpd.DataFrame(imp_pbceq)
-imp_pbceq.data.info()
+imp_moneyball = imp.fit_transform(moneyball_new_data)
+imp_moneyball = pd.DataFrame(imp_moneyball, columns= imp.get_feature_names_out())
+print(imp_moneyball)
 
 #############################################################################################################
 ##   Linear Regression     ##
 
 lr = LinearRegression()
 
-imp_pbceq = cross_validate(lr, pbceq_new_data, pbcseq_data.target, cv=10, scoring="neg_root_mean_squared_error")
-# print(pbceq_scores["test score"])
+lrr_moneyball = cross_validate(lr, imp_moneyball, Moneyball_data.target, cv=10, scoring="neg_root_mean_squared_error")
+print(lrr_moneyball)
+
+lrr_seoul_bike = cross_validate(lr, seoul_bike_trans_data, seoul_bike_sharing_demand.loc[:,'Rented Bike Count'], cv=10, scoring="neg_root_mean_squared_error")
+print(lrr_seoul_bike)
+
+
+
+# lrr_pbceq_y_scores = model_selection.cross_val_predict(lrr_moneyball,Moneyball_data.data,Moneyball_data.target,method='predict_proba',cv=10)
+# Steel_Plate_Fault_entropy_fpr,Steel_Plate_Fault_entropy_tpr,Steel_Plate_Fault_entropy_th = roc_curve(Steel_plate_falult.target,Steel_Plate_Fault_entropy_y_scores[:,1],pos_label="2")
+# OVA_Prostate_entropy_AUC = roc_auc_score(OVA_Prostate.target, OVA_Prostate_entropy_y_scores[:,1])
 
 # #############################################################################################################
 # ##   Create Decision Trees     ##
