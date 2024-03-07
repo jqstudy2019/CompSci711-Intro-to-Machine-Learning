@@ -26,23 +26,25 @@ import numpy as np
 from matplotlib import pyplot as plt
 import time
 
-from ucimlrepo import fetch_ucirepo 
+# from ucimlrepo import fetch_ucirepo 
 
-from scipy.io.arff import loadarff
+# from scipy.io.arff import loadarff
 
     #   SkLearn Imports     
 from sklearn import datasets
-# from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier
 # from sklearn import tree
 # from sklearn import metrics
-from sklearn.metrics import roc_curve
-from sklearn.metrics import roc_auc_score
+# from sklearn.metrics import roc_curve
+# from sklearn.metrics import roc_auc_score
 from sklearn import model_selection
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import cross_validate
 from sklearn.impute import SimpleImputer
+from sklearn.model_selection import learning_curve
+from sklearn.neighbors  import KNeighborsRegressor
 
 #############################################################################################################
 ##     Start Program Timer       ##
@@ -50,84 +52,131 @@ Whole_Time_start = time.time()
 
 #############################################################################################################
 ##   Loading Data Sets      ##
-loading_Moneyball_start = time.time()
-Moneyball_data = datasets.fetch_openml(data_id=41021) # https://www.openml.org/search?type=data&sort=runs&status=active&qualities.NumberOfInstances=between_1000_10000&qualities.NumberOfClasses=lte_1&id=688
-loading_Moneyball_end = time.time()
-print("Moneyball Dataset Loading Time (Seconds): ", round(loading_Moneyball_end-loading_Moneyball_start,3))
-Moneyball_data.data.info()
-print(Moneyball_data)
+Moneyball_data = datasets.fetch_openml(data_id=41021) # https://www.openml.org/search?type=data&status=active&sort=runs&qualities.NumberOfInstances=between_1000_10000&qualities.NumberOfClasses=lte_1&id=41021
+Moneyball_data_df = pd.DataFrame(Moneyball_data.data, columns=Moneyball_data.feature_names)
+Moneyball_data_df['target'] = pd.Series(Moneyball_data.target)
 
-# UCI Dataset
-# fetch dataset 
-seoul_bike_sharing_demand = pd.read_csv('SeoulBikeData.csv', encoding=None)
-seoul_bike_sharing_demand_array = np.array(seoul_bike_sharing_demand)
-print(seoul_bike_sharing_demand)
-
+# seoul_bike_sharing_demand = pd.read_csv('SeoulBikeData.csv', encoding=None) # Downloaded as csv from: https://archive.ics.uci.edu/dataset/560/seoul+bike+sharing+demand
+# seoul_bike_sharing_demand_array = np.array(seoul_bike_sharing_demand)
 
 #############################################################################################################
-##   One Hot Encoding  ##
+##   Preprocessig - Dropping Data   ##
 
-ct_seoul_bike = ColumnTransformer([("encoder", OneHotEncoder(sparse_output=False), [0,11,12,13])], remainder="passthrough")
-seoul_bike_trans_data = ct_seoul_bike.fit_transform(seoul_bike_sharing_demand_array)
-seoul_bike_trans_data = pd.DataFrame(seoul_bike_trans_data, columns = ct_seoul_bike.get_feature_names_out())
-print(seoul_bike_trans_data)
-
-ct_Moneyball = ColumnTransformer([("encoder", OneHotEncoder(sparse_output=False), [0,1,8,9,10,11])], remainder="passthrough")
-trans_moneyball = ct_Moneyball.fit_transform(Moneyball_data.data)
-moneyball_new_data = pd.DataFrame(trans_moneyball, columns = ct_Moneyball.get_feature_names_out(), index = Moneyball_data.data.index)
-
+Moneyball_data_df = Moneyball_data_df.drop(["OOBP", "OSLG"],axis=1) # Dropping these made Results WAYYYYYYY etter ; most of this was missing any way ; pitcher stats?
+# print(Moneyball_data_df)
 
 #############################################################################################################
-##   Missing Values Imputation  ##
+##   Preprocessig - Missing Values Imputation  ##
 #     # Used Mean Imputing to Fill values with most mean of non missing column 
 
-imp = SimpleImputer(missing_values=np.nan, strategy='mean')
+imp = SimpleImputer(missing_values=np.nan, strategy='constant', fill_value="10") # This is replacing playoff and season rank ; if unranked they did not do well enough to make it to the ranking so a value lower than both ranges used to denote worse performance 
 
-imp_moneyball = imp.fit_transform(moneyball_new_data)
+imp_moneyball = imp.fit_transform(Moneyball_data_df)
 imp_moneyball = pd.DataFrame(imp_moneyball, columns= imp.get_feature_names_out())
 print(imp_moneyball)
 
 #############################################################################################################
-##   Linear Regression     ##
+##   Preprocessing - One Hot Encoding  ##
 
-lr = LinearRegression()
+ct_Moneyball = ColumnTransformer([("encoder", OneHotEncoder(sparse_output=False), [0,1])], remainder="passthrough")
+trans_moneyball = ct_Moneyball.fit_transform(imp_moneyball)
+print(trans_moneyball)
 
-lrr_moneyball = cross_validate(lr, imp_moneyball, Moneyball_data.target, cv=10, scoring="neg_root_mean_squared_error")
-print(lrr_moneyball)
+#############################################################################################################
+##   K Nearest Neighbor    ##
 
-lrr_seoul_bike = cross_validate(lr, seoul_bike_trans_data, seoul_bike_sharing_demand.loc[:,'Rented Bike Count'], cv=10, scoring="neg_root_mean_squared_error")
-print(lrr_seoul_bike)
+knn_3 = KNeighborsRegressor(n_neighbors=3)
+knn_7 = KNeighborsRegressor(n_neighbors=7)
+knn_11 = KNeighborsRegressor(n_neighbors=11)
+
+knn_3_scores_moneyball = cross_validate(knn_3, trans_moneyball, Moneyball_data.target, cv=10, scoring="neg_root_mean_squared_error")
+knn_3_moneyball_rmse = 0-knn_3_scores_moneyball['test_score']
+print('Final RMSE K=3: ',knn_3_moneyball_rmse[len(knn_3_moneyball_rmse)-1])
+knn_3_moneyball_training_examples, knn_3_moneyball_training_scores, knn_3_moneyball_test_scores = learning_curve(knn_3, trans_moneyball,  Moneyball_data.target, 
+                                                                                                           train_sizes=[0.1, 0.2, 0.4, 0.6, 0.8, 1.0], cv=10, scoring="neg_root_mean_squared_error")
+knn_3_moneyball_test_scores_rmse = 0 - knn_3_moneyball_test_scores
 
 
+knn_7_scores_moneyball = cross_validate(knn_7, trans_moneyball, Moneyball_data.target, cv=10, scoring="neg_root_mean_squared_error")
+knn_7_moneyball_rmse = 0-knn_7_scores_moneyball['test_score']
+print('Final RMSE K=7: ',knn_7_moneyball_rmse[len(knn_7_moneyball_rmse)-1])
+knn_7_moneyball_training_examples, knn_7_moneyball_training_scores, knn_7_moneyball_test_scores = learning_curve(knn_7, trans_moneyball,  Moneyball_data.target, 
+                                                                                                           train_sizes=[0.1, 0.2, 0.4, 0.6, 0.8, 1.0], cv=10, scoring="neg_root_mean_squared_error")
+knn_7_moneyball_test_scores_rmse = 0 - knn_7_moneyball_test_scores
 
-# lrr_pbceq_y_scores = model_selection.cross_val_predict(lrr_moneyball,Moneyball_data.data,Moneyball_data.target,method='predict_proba',cv=10)
-# Steel_Plate_Fault_entropy_fpr,Steel_Plate_Fault_entropy_tpr,Steel_Plate_Fault_entropy_th = roc_curve(Steel_plate_falult.target,Steel_Plate_Fault_entropy_y_scores[:,1],pos_label="2")
-# OVA_Prostate_entropy_AUC = roc_auc_score(OVA_Prostate.target, OVA_Prostate_entropy_y_scores[:,1])
+
+knn_11_scores_moneyball = cross_validate(knn_11, trans_moneyball, Moneyball_data.target, cv=10, scoring="neg_root_mean_squared_error")
+knn_11_moneyball_rmse = 0-knn_11_scores_moneyball['test_score']
+print('Final RMSE K=11: ',knn_11_moneyball_rmse[len(knn_11_moneyball_rmse)-1])
+knn_11_moneyball_training_examples, knn_11_moneyball_training_scores, knn_11_moneyball_test_scores = learning_curve(knn_11, trans_moneyball,  Moneyball_data.target, 
+                                                                                                           train_sizes=[0.1, 0.2, 0.4, 0.6, 0.8, 1.0], cv=10, scoring="neg_root_mean_squared_error")
+knn_11_moneyball_test_scores_rmse = 0 - knn_11_moneyball_test_scores
+
+
+plt.plot(knn_3_moneyball_training_examples,-knn_3_moneyball_test_scores.mean(axis=1),"bo-",label= 'K = 3')
+plt.plot(knn_7_moneyball_training_examples,-knn_7_moneyball_test_scores.mean(axis=1),"go-", label= 'K = 7')
+plt.plot(knn_11_moneyball_training_examples,-knn_11_moneyball_test_scores.mean(axis=1),"ro-", label= 'K = 11')
+plt.legend()
+plt.show()
+
+RMSE_Values = {'K = 3': [knn_3_moneyball_rmse[len(knn_3_moneyball_rmse)-1]],
+                'K = 7': [knn_7_moneyball_rmse[len(knn_7_moneyball_rmse)-1]],
+                'K = 11': [knn_11_moneyball_rmse[len(knn_11_moneyball_rmse)-1]]}
+RMSE_Values_df = pd.DataFrame(RMSE_Values)
+print("RMSE Values for K Nearest Neighbor of Moneyball Data Set \n", RMSE_Values_df)
+
 
 # #############################################################################################################
-# ##   Create Decision Trees     ##
-# Fitting_start = time.time()
-#     #   Entropy Training and Prediction #
-#         #   OVA Prostate Entropy 
-# OVA_Prostate_entropy = DecisionTreeClassifier(criterion='entropy')
-# OVA_Prostate_entropy.fit(OVA_Prostate.data,OVA_Prostate.target)
+# ##   Linear Regression     ##
 
-#         # Stee Plate Falult Entropy
-# Steel_plate_falult_entropy = DecisionTreeClassifier(criterion='entropy')
-# Steel_plate_falult_entropy.fit(Steel_plate_falult.data,Steel_plate_falult.target)
+# lr = LinearRegression()
 
-#     #   Gini Index Training and Prediction #
-#         #   OVA Prostate Gini Index
-# OVA_Prostate_Gini = DecisionTreeClassifier(criterion='gini')
-# OVA_Prostate_Gini.fit(OVA_Prostate.data,OVA_Prostate.target)
+# lrr_scores_moneyball = cross_validate(lr, imp_moneyball, Moneyball_data.target, cv=10, scoring="neg_root_mean_squared_error")
+# # lrr_moneyball_rmse = 0-lrr_scores_moneyball['test_score']
+# # print(lrr_moneyball_rmse.mean())
 
-#         # Stee Plate Falult Gini Index
-# Steel_plate_falult_Gini = DecisionTreeClassifier(criterion='gini')
-# Steel_plate_falult_Gini.fit(Steel_plate_falult.data,Steel_plate_falult.target)
+# training_examples, training_scores, test_scores = learning_curve(lr, imp_moneyball,  Moneyball_data.target, train_sizes=[0.1, 0.2, 0.4, 0.6, 0.8, 1.0], cv=10, scoring="neg_root_mean_squared_error")
+# training_scores_rmse = 0 - training_scores
+# # plt.plot(training_scores_rmse[:,0],training_scores_rmse[:,1])
+# # plt.show()
 
-# Fitting_end = time.time()
-# print("Fitting Time (Seconds): ", round(Fitting_end-Fitting_start,3))
+# lrr_seoul_bike = cross_validate(lr, seoul_bike_trans_data, seoul_bike_sharing_demand.loc[:,'Rented Bike Count'], cv=10, scoring="neg_root_mean_squared_error")
+# # print(lrr_seoul_bike)
+
 # #############################################################################################################
+# ##   K Nearest Neighbor    ##
+
+# knn_3 = KNeighborsRegressor(n_neighbors=3)
+# knn_7 = KNeighborsRegressor(n_neighbors=3)
+# knn_11 = KNeighborsRegressor(n_neighbors=11)
+
+# knn_scores_moneyball = cross_validate(knn, imp_moneyball, Moneyball_data.target, cv=10, scoring="neg_root_mean_squared_error")
+# print(knn_scores_moneyball)
+# knn_moneyball_rmse = 0-knn_scores_moneyball['test_score']
+# print(knn_moneyball_rmse[len(knn_moneyball_rmse)-1])
+
+# knn_moneyball_training_examples, knn_moneyball_training_scores, knn_moneyball_test_scores = learning_curve(lr, imp_moneyball,  Moneyball_data.target, train_sizes=[0.1, 0.2, 0.4, 0.6, 0.8, 1.0], cv=10, scoring="neg_root_mean_squared_error")
+# knn_moneyball_training_scores_rmse = 0 - knn_moneyball_training_scores
+# knn_moneyball_test_scores_rmse = 0 - knn_moneyball_test_scores
+# plt.plot(knn_moneyball_training_examples,knn_moneyball_test_scores_rmse)
+# plt.show()
+
+# #############################################################################################################
+# ##   Decison Tree   ##
+
+# dct = DecisionTreeClassifier()
+
+# dct_scores_moneyball = cross_validate(dct, imp_moneyball, Moneyball_data.target, cv=10, scoring="neg_root_mean_squared_error")
+# print(dct_scores_moneyball)
+# # knn_moneyball_rmse = 0-knn_scores_moneyball['test_score']
+# # print(knn_moneyball_rmse.mean())
+
+# dct_moneyball_training_examples, dct_moneyball_training_scores, dct_moneyball_test_scores = learning_curve(dct, imp_moneyball,  Moneyball_data.target, train_sizes=[0.1, 0.2, 0.4, 0.6, 0.8, 1.0], cv=10, scoring="neg_root_mean_squared_error")
+# dct_moneyball_training_scores_rmse = 0 - dct_moneyball_training_scores
+# plt.plot(dct_moneyball_training_examples,dct_moneyball_test_scores)
+# plt.show()
+
+############################################################################################
 # ##   Cross Validation Prediction ; ROC Plotting ; AUC Calc   ##
 # Cross_Valid_start = time.time()
 
@@ -203,30 +252,6 @@ print(lrr_seoul_bike)
 # OVA_Prostate_entropy_Tuned_y_scores = model_selection.cross_val_predict(OVA_Prostate_entropy_Tuned, OVA_Prostate.data, OVA_Prostate.target, method="predict_proba",cv=10)
 # OVA_Prostate_entropy_Tuned.fit(OVA_Prostate.data,OVA_Prostate.target)
 
-#     # Steel Fault Entropy Tuning
-# Steel_plate_falult_entropy_Tuned = model_selection.GridSearchCV(Steel_plate_falult_entropy, min_samples_leaf_Search, scoring="roc_auc", cv=5)
-# Steel_plate_falult_entropy_Tuned_y_scores = model_selection.cross_val_predict(Steel_plate_falult_entropy_Tuned, Steel_plate_falult.data, Steel_plate_falult.target, method="predict_proba",cv=10)
-# Steel_plate_falult_entropy_Tuned.fit(Steel_plate_falult.data, Steel_plate_falult.target)
-
-#     # OVA Prostate Gini Tuning
-# OVA_Prostate_gini_Tuned = model_selection.GridSearchCV(OVA_Prostate_Gini, min_samples_leaf_Search, scoring="roc_auc", cv=5)
-# OVA_Prostate_gini_Tuned_y_scores = model_selection.cross_val_predict(OVA_Prostate_gini_Tuned, OVA_Prostate.data, OVA_Prostate.target, method="predict_proba",cv=10)
-# OVA_Prostate_gini_Tuned.fit(OVA_Prostate.data,OVA_Prostate.target)
-
-#     # Steel Fault Gini Tuning
-# Steel_plate_falult_gini_Tuned = model_selection.GridSearchCV(Steel_plate_falult_Gini, min_samples_leaf_Search, scoring="roc_auc", cv=5)
-# Steel_plate_falult_gini_Tuned_y_scores = model_selection.cross_val_predict(Steel_plate_falult_gini_Tuned, Steel_plate_falult.data, Steel_plate_falult.target, method="predict_proba",cv=10)
-# Steel_plate_falult_gini_Tuned.fit(Steel_plate_falult.data, Steel_plate_falult.target)
-
-# Best_Params = {'OVA Prostate Entropy Best Params': [OVA_Prostate_entropy_Tuned.best_params_],
-#         'Steel Fault Entropy Best Params': [Steel_plate_falult_entropy_Tuned.best_params_],
-#         'OVA Prostate Gini Best Params': [OVA_Prostate_gini_Tuned.best_params_],
-#         'Steel Fault Gini Best Params': [Steel_plate_falult_gini_Tuned.best_params_]}
-# Best_Params_df = pandas.DataFrame(Best_Params)
-# print(Best_Params_df)
-
-# Param_Tuning_end = time.time()
-# print("Parameter Tuning Time (Seconds): ", round(Param_Tuning_end-Param_Tuning_start,3))
 
 # #############################################################################################################
 ##     End Timer       ##
