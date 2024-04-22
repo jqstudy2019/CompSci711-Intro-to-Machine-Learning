@@ -51,7 +51,7 @@ Moneyball_data_df['target'] = pd.Series(Moneyball_data.target)
 #############################################################################################################
 ##   Preprocessig - Dropping Data   ##
 
-Moneyball_data_df = Moneyball_data_df.drop(["OOBP", "OSLG"],axis=1) # Dropping these made Results WAYYYYYYY etter ; most of this was missing any way ; pitcher stats?
+# Moneyball_data_df = Moneyball_data_df.drop(["OOBP", "OSLG"],axis=1) # Dropping these made Results WAYYYYYYY etter ; most of this was missing any way ; pitcher stats?
 
 #############################################################################################################
 ##   Preprocessig - Missing Values Imputation  ##
