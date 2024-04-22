@@ -73,7 +73,7 @@ wine_quality_nn_2.add(Dense(10,activation="relu"))
 wine_quality_nn_3.add(Dense(15,activation="sigmoid"))
 wine_quality_nn_3.add(Dense(5,activation="sigmoid"))
 
-wine_quality_nn_4.add(Dense(10,activation="relu"))
+wine_quality_nn_4.add(Dense(10,activation="sigmoid"))
 
 # Output Layers
 wine_quality_nn_1.add(Dense(1))
@@ -94,7 +94,7 @@ wine_quality_history_3 = wine_quality_nn_3.fit(wine_quality_x_train, wine_qualit
 wine_quality_history_4 = wine_quality_nn_4.fit(wine_quality_x_train, wine_quality_y_train, epochs=200,validation_data=(wine_quality_x_val,wine_quality_y_val),verbose=1)
 
 # Plot Graphs
-plt.title("Model 1 - 30 Node Layer ; 10 Node Layer ; ReLu Activation ")
+plt.title("Model 1 - 30 Node Layer ; 10 Node Layer ; Sigmoid Activation ")
 plt.plot(wine_quality_history_1.history["mse"], label="Training")
 plt.plot(wine_quality_history_1.history["val_mse"], label="Validation")
 plt.xlabel("Epochs")
@@ -102,7 +102,7 @@ plt.ylabel("MSE")
 plt.legend()
 plt.show()
 
-plt.title("Model 2 - 30 Node Layer ; 10 Node Layer ; Sigmoid Activation ")
+plt.title("Model 2 - 30 Node Layer ; 10 Node Layer ; ReLu Activation ")
 plt.plot(wine_quality_history_2.history["mse"], label="Training")
 plt.plot(wine_quality_history_2.history["val_mse"], label="Validation")
 plt.xlabel("Epochs")
@@ -110,7 +110,7 @@ plt.ylabel("MSE")
 plt.legend()
 plt.show()
 
-plt.title("Model 3 - 15 Node Layer ; 5 Node Layer ; ReLu Activation ")
+plt.title("Model 3 - 15 Node Layer ; 5 Node Layer ; Sigmoid Activation ")
 plt.plot(wine_quality_history_3.history["mse"], label="Training")
 plt.plot(wine_quality_history_3.history["val_mse"], label="Validation")
 plt.xlabel("Epochs")
@@ -118,7 +118,7 @@ plt.ylabel("MSE")
 plt.legend()
 plt.show()
 
-plt.title("Model 4 - 15 Node Layer ; 5 Node Layer ; Sigmoid Activation ")
+plt.title("Model 4 - 10 Node Layer ; Sigmoid Activation ")
 plt.plot(wine_quality_history_4.history["mse"], label="Training")
 plt.plot(wine_quality_history_4.history["val_mse"], label="Validation")
 plt.xlabel("Epochs")
@@ -172,8 +172,7 @@ spambase_nn_2.add(Dense(10,activation="relu"))
 spambase_nn_3.add(Dense(15,activation="sigmoid"))
 spambase_nn_3.add(Dense(5,activation="sigmoid"))
 
-spambase_nn_4.add(Dense(15,activation="relu"))
-spambase_nn_4.add(Dense(5,activation="relu"))
+spambase_nn_4.add(Dense(10,activation="sigmoid"))
 
 # Output Layers
 spambase_nn_1.add(Dense(2,activation="softmax"))
@@ -222,7 +221,7 @@ plt.ylim(0,1)
 plt.legend()
 plt.show()
 
-plt.title("Model 4 - 15 Node Layer ; 5 Node Layer ; ReLu Activation ")
+plt.title("Model 4 - 10 Node Layer ; Sigmoid Activation ")
 plt.plot(spambase_history_4.history["accuracy"], label="Training")
 plt.plot(spambase_history_4.history["val_accuracy"], label="Validation")
 plt.xlabel("Epochs")
