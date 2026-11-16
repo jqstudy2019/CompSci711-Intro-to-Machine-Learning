@@ -1,0 +1,12 @@
+# Word lock files
+~$*
+
+# secrets
+github-recovery-codes.txt
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+.claude
