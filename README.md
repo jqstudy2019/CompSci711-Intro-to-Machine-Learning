@@ -2,7 +2,7 @@
 
 Assignments from COMPSCI 711: Introduction to Machine Learning (graduate level, University of Wisconsin–Milwaukee, Spring 2024), by John Quinn.
 
-This repository holds everything from the course: my four assignments (code, reports, figures, data and trained models) and the course materials they were built on (lecture slides, syllabus, textbook and a sample midterm).
+This repository holds my own work from the course: four assignments, each with code, a written report, figures, and the data and trained models where relevant. The instructor's materials (slides, handouts, exams, syllabus) and the textbook are not included.
 
 Each assignment picks a public dataset (from [OpenML](https://www.openml.org/) or Kaggle), trains and tunes models with scikit-learn or Keras, and compares them in a short written report.
 
@@ -10,7 +10,7 @@ Each assignment picks a public dataset (from [OpenML](https://www.openml.org/) o
 
 - [Assignments](#assignments): [1](#assignment-1--decision-trees) · [2](#assignment-2--regression-model-comparison) · [3](#assignment-3--neural-networks) · [4](#assignment-4--convolutional-neural-networks)
 - [Running the code](#running-the-code)
-- [Course materials](#course-materials): [lecture slides](#lecture-slides) · [syllabus, textbook and exam](#syllabus-textbook-and-exam)
+- [Course topics](#course-topics)
 - [Repository layout](#repository-layout)
 - [Credits](#credits)
 
@@ -41,7 +41,7 @@ The split criterion only mattered on the high-dimensional gene expression data, 
 
 ![ROC curves for both datasets and both split criteria](Assignments/Assignment%201/figures/Figure_1.png)
 
-Also in [the folder](Assignments/Assignment%201/): the report as `.docx`, the instructor's `IDLE.pptx` and `sklearn.pptx` setup tutorials, and a scratch script (`test.py`).
+Also in [the folder](Assignments/Assignment%201/): the report as `.docx` and a scratch script (`test.py`).
 
 ## Assignment 2 — Regression model comparison
 
@@ -68,7 +68,7 @@ Also in [the folder](Assignments/Assignment%202/):
 - `figures/`: the remaining learning-curve plots, including the model comparison.
 - `data/baseball.arff`: a local copy of the Moneyball data. The script itself downloads it from OpenML.
 - `data/SeoulBikeData.csv` and its source zip: a second dataset (Seoul bike sharing demand) that I started with and dropped.
-- The report as `.docx` and the instructor's assignment handout (`A2.pptx`).
+- The report as `.docx`.
 
 ## Assignment 3 — Neural networks
 
@@ -89,7 +89,7 @@ All four architectures ended close together on both tasks. The main difference w
 |---|---|
 | ![Validation MSE for model 2](Assignments/Assignment%203/figures/Regress_Model_2.png) | ![Validation accuracy for model 2](Assignments/Assignment%203/figures/Class_Model_2.png) |
 
-Also in [the folder](Assignments/Assignment%203/): training curves for all eight models in `figures/` (`Regress_Model_1`–`4` and `Class_Model_1`–`4`), the report as `.docx`, the instructor's handout (`A3.pptx`) and a scratch script (`Test.py`).
+Also in [the folder](Assignments/Assignment%203/): training curves for all eight models in `figures/` (`Regress_Model_1`–`4` and `Class_Model_1`–`4`), the report as `.docx` and a scratch script (`Test.py`).
 
 ## Assignment 4 — Convolutional neural networks
 
@@ -122,7 +122,6 @@ Also in [the folder](Assignments/Assignment%204/):
 | `Pretrianed_CNN_Model.keras` | The fine-tuned EfficientNetV2S from Task 2 (94 MB) |
 | `old models/my_cnn1.keras` | An earlier training run of the first CNN |
 | `figures/` | Two of the error-analysis images from Task 3 |
-| `A4.pptx` | The instructor's assignment handout |
 | `Test.py`, `test.jpeg` | Scratch script and a single test image used while developing |
 
 ## Running the code
@@ -136,58 +135,41 @@ python "Assignments/Assignment 1/JQ-CompSci711-Assign1.py"
 
 Each script prints its result tables and opens its figures in a matplotlib window. Assignment 1 runs nested cross-validation on a 1,000-feature dataset and takes a while.
 
-## Course materials
+## Course topics
 
-### Lecture slides
+The course covered, in roughly this order:
 
-The instructor's slide decks, in [Lecture Slides/](Lecture%20Slides/), one folder per topic.
+1. Introduction to machine learning
+2. Information-based learning (decision trees)
+3. Evaluation measures and methodologies
+4. Similarity-based learning (k-nearest neighbors)
+5. Probability-based learning (naive Bayes)
+6. Data exploration
+7. Linear and logistic regression
+8. Neural networks and deep learning
+9. Convolutional neural networks
+10. Recurrent neural networks
+11. Attention and transformers
+12. Generative models
+13. Ensembles
 
-| # | Topic | Decks |
-|---|---|---|
-| 01 | [Introduction](Lecture%20Slides/01%20Introduction/) | Parts 1–3 |
-| 02 | [Decision Trees](Lecture%20Slides/02%20Decision%20Trees/) | Parts 1–2 |
-| 03 | [Evaluation](Lecture%20Slides/03%20Evaluation/) | Parts 1–2 |
-| 04 | [Similarity-Based Learning](Lecture%20Slides/04%20Similarity-Based%20Learning/) | Parts 1–3 |
-| 05 | [Probability-Based Learning](Lecture%20Slides/05%20Probability-Based%20Learning/) | Parts 1–3 |
-| 06 | [Data Exploration](Lecture%20Slides/06%20Data%20Exploration/) | Parts 1–2 |
-| 07 | [Linear Regression](Lecture%20Slides/07%20Linear%20Regression/) | Parts 1–2 |
-| 08 | [Logistic Regression](Lecture%20Slides/08%20Logistic%20Regression/) | Parts 1–2 |
-| 09 | [Neural Networks](Lecture%20Slides/09%20Neural%20Networks/) | Parts 1–3 |
-| 10 | [Deep Learning](Lecture%20Slides/10%20Deep%20Learning/) | 1 deck |
-| 11 | [Ensembles](Lecture%20Slides/11%20Ensembles/) | 1 deck |
-| 12 | [Convolutional Neural Networks](Lecture%20Slides/12%20CNN/) | Parts 1–2 |
-| 13 | [Recurrent Neural Networks](Lecture%20Slides/13%20RNNs/) | 1 deck |
-| 14 | [Attention and Transformers](Lecture%20Slides/14%20Attention%20and%20Transformers/) | 1 deck |
-| 15 | [Generative Models](Lecture%20Slides/15%20Generative%20Models/) | 1 deck |
-
-Folders 01–09 follow the order of topics in the syllabus. The numbering from 10 onward is my own ordering and may not match the order the lectures were given in.
-
-### Syllabus, textbook and exam
-
-- [Syllabus.pdf](Syllabus.pdf): the Spring 2024 course syllabus, with the topic list and grading scheme.
-- [Textbook/](Textbook/): *Fundamentals of Machine Learning for Predictive Data Analytics* by Kelleher, Mac Namee and D'Arcy (MIT Press), the 2015 edition. The course lists the 2020 second edition as required.
-- [Exams/](Exams/): the sample midterm and its solution.
+The course textbook was *Fundamentals of Machine Learning for Predictive Data Analytics* by John D. Kelleher, Brian Mac Namee and Aoife D'Arcy (The MIT Press).
 
 ## Repository layout
 
 ```
 README.md
 requirements.txt
-Syllabus.pdf
 Assignments/
-  Assignment 1/   code, report (.docx, .pdf), figures/, setup tutorials
-  Assignment 2/   code, report (.docx, .pdf), figures/, data/, handout
-  Assignment 3/   code, report (.docx, .pdf), figures/, handout
-  Assignment 4/   code, report (.docx, .pdf), figures/, handout,
+  Assignment 1/   code, report (.docx, .pdf), figures/
+  Assignment 2/   code, report (.docx, .pdf), figures/, data/
+  Assignment 3/   code, report (.docx, .pdf), figures/
+  Assignment 4/   code, report (.docx, .pdf), figures/,
                   trained models (.keras), old models/, Monkey Species Data/
-Lecture Slides/   15 numbered topic folders of .pptx decks
-Textbook/         course textbook (.pdf)
-Exams/            sample midterm and solution (.pdf)
 ```
 
 ## Credits
 
 - The assignment code, reports and figures are my own work.
-- Lecture slides, assignment handouts, the syllabus and the sample midterm were written by the course instructor, Rohit Kate, at the University of Wisconsin–Milwaukee.
-- The textbook is by John D. Kelleher, Brian Mac Namee and Aoife D'Arcy, published by The MIT Press.
+- The course was taught by Rohit Kate at the University of Wisconsin–Milwaukee, who set the assignments.
 - Datasets come from [OpenML](https://www.openml.org/) (steel-plates-fault, OVA_Prostate, Moneyball, wine_quality, spambase), the UCI Machine Learning Repository (Seoul bike sharing demand) and Kaggle ([10 Species of Monkey](https://www.kaggle.com/datasets/utkarshsaxenadn/10-species-of-monkey-multiclass-classification)).
